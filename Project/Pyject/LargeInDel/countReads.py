@@ -61,6 +61,11 @@ def save_stat(y_data1, y_data2, x_axis):
             sheet2.write(row_no + 1, a_details_sorted.index((key, value)) + 1, row_data[key])
     workbook.save(path_xls)
 
+def parse_cigar(operations):
+    def read_fragment(rest_op):
+        len_frag = re.match('(\d+)\w', operations).group()
+
+    len_valid = 0
 
 path_primer_details = sys.argv[1]
 dir_sam = sys.argv[2]

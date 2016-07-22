@@ -10,7 +10,7 @@
 
 ### 2.1 Mandatory fields
 
->  ![the mandatory fileds in the SAM format](/Users/codeunsolved/Desktop/屏幕快照 2016-07-22 下午1.27.02.png)
+>  ![the mandatory fileds in the SAM format](pic/屏幕快照 2016-07-22 下午1.27.02.png)
 
 
 
@@ -22,10 +22,11 @@ Alignment section 示例：
 
 
 
->1. **QNAME**: Query template NAME. Reads/segments having identical QNAME are regarded to come from the same template. A QNAME ‘*’ indicates the information is unavailable. In a SAM file, a read may occupy multiple alignment lines, when its alignment is chimeric or when multiple mappings are given.
->2. **FLAG**: Combination of bitwise FLAGs. Each bit is explained in the following table.
+>1. **QNAME:** Query template NAME. Reads/segments having identical QNAME are regarded to come from the same template. A QNAME ‘*’ indicates the information is unavailable. In a SAM file, a read may occupy multiple alignment lines, when its alignment is chimeric or when multiple mappings are given.
+>2. **FLAG:** Combination of bitwise FLAGs. Each bit is explained in the following table.
 >   ​
->    ![Combination of bitwise FLAGs](/Users/codeunsolved/Desktop/屏幕快照 2016-07-22 下午1.49.33.png)
+>     ![Combination of bitwise FLAGs](pic/屏幕快照 2016-07-22 下午1.49.33.png)
+>   ​
 >   - For each read/contig in a SAM file, it is required that one and only one line associated with theread satisfies ‘FLAG & 0x900 == 0’. This line is called the primary line of the read.
 >   - Bit 0x100 marks the alignment not to be used in certain analyses when the tools in use are aware of this bit. It is typically used to flag alternative mappings when multiple mappings are presented in a SAM.
 >   - Bit 0x800 indicates that the corresponding alignment line is part of a chimeric alignment. A line flagged with 0x800 is called as a supplementary line.
@@ -34,4 +35,11 @@ Alignment section 示例：
 >   - If 0x40 and 0x80 are both set, the read is part of a linear template, but it is neither the first nor the last read. If both 0x40 and 0x80 are unset, the index of the read in the template is unknown. This may happen for a non-linear template or the index is lost in data processing.
 >   - If 0x1 is unset, no assumptions can be made about 0x2, 0x8, 0x20, 0x40 and 0x80
 >   - Bits that are not listed in the table are reserved for future use. They should not be set when writing and should be ignored on reading by current software.
+>3. **RNAME:** Reference sequence NAME of the alignment. If @SQ header lines are present, RNAME (if not ‘*’) must be present in one of the SQ-SN tag. An unmapped segment without coordinate has a ‘*’ at this field. However, an unmapped segment may also have an ordinary coordinate such that it can be placed at a desired position after sorting. If RNAME is ‘*’, no assumptions can be made about POS and CIGAR.
+>4. **POS:** 1-based leftmost mapping POSition of the first matching base. The first base in a reference sequence has coordinate 1. POS is set as 0 for an unmapped read without coordinate. If POS is 0, no assumptions can be made about RNAME and CIGAR.
+>5. **MAPQ:** MAPping Quality. It equals −10 log10 Pr{mapping position is wrong}, rounded to the nearest integer. A value 255 indicates that the mapping quality is not available.
+>6. **CIGAR:** CIGAR string. The CIGAR operations are given in the following table (set ‘*’ if unavailable):
+>   ​
+>    ![The CIGAR operations](pic/屏幕快照 2016-07-22 下午4.38.24.png)
+>   ​
 
