@@ -9,7 +9,7 @@ import os
 import re
 import sys
 import xlwt
-from Pyject.Lib.BASE import get_file_path
+from Project.Pyject.Lib.BASE import get_file_path
 
 
 def read_primer_details(p_file):
@@ -61,11 +61,21 @@ def save_stat(y_data1, y_data2, x_axis):
             sheet2.write(row_no + 1, a_details_sorted.index((key, value)) + 1, row_data[key])
     workbook.save(path_xls)
 
-def parse_cigar(operations):
-    def read_fragment(rest_op):
-        len_frag = re.match('(\d+)\w', operations).group()
 
-    len_valid = 0
+def parse_cigar(operations, len_valid):
+    gap_cutoff = 10
+    len_frag, cigar_op = re.match('(\d+)(\w)', operations).group(1, 2)
+    rest_op = operations[len_valid:]
+    if cigar_op == 'M':
+        len_valid += len_frag
+        len_valid = parse_cigar(rest_op, len_valid)
+    elif cigar_op == 'I' | 'D':
+        if len_frag <= gap_cutoff:
+            len_valid += len_frag
+            len_valid = parse_cigar(rest_op, len_valid)
+        else:
+            return len_valid
+    return len_valid
 
 path_primer_details = sys.argv[1]
 dir_sam = sys.argv[2]
