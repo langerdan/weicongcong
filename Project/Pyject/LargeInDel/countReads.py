@@ -8,7 +8,9 @@
 import os
 import re
 import sys
+
 import xlwt
+
 from Project.Pyject.Lib.BASE import get_file_path
 
 
@@ -63,18 +65,19 @@ def save_stat(y_data1, y_data2, x_axis):
 
 
 def parse_cigar(operations, len_valid):
-    gap_cutoff = 10
-    len_frag, cigar_op = re.match('(\d+)(\w)', operations).group(1, 2)
-    rest_op = operations[len_valid:]
-    if cigar_op == 'M':
-        len_valid += len_frag
-        len_valid = parse_cigar(rest_op, len_valid)
-    elif cigar_op == 'I' | 'D':
-        if len_frag <= gap_cutoff:
+    print operations
+    if re.match('\d+\w', operations):
+        len_frag, cigar_op = re.match('(\d+)(\w)', operations).group(1, 2)
+        rest_op = operations[len(len_frag)+1:]
+        len_frag = int(len_frag)
+        if cigar_op == 'M':
             len_valid += len_frag
-            len_valid = parse_cigar(rest_op, len_valid)
-        else:
-            return len_valid
+            if rest_op:
+                len_valid = parse_cigar(rest_op, len_valid)
+        elif cigar_op == 'I' or cigar_op == 'D':
+            len_valid += len_frag
+            if rest_op:
+                len_valid = parse_cigar(rest_op, len_valid)
     return len_valid
 
 path_primer_details = sys.argv[1]
@@ -103,15 +106,18 @@ for each_p_sam in path_sam_list:
             if re.match('@', line):
                 continue
             pos_start = int(re.match('(?:[^\t]+\t){3}([^\t]+)', line).group(1))
-            m_pos = int(re.match('(?:[^\t]+\t){7}([^\t]+)', line).group(1))
+            cigar = re.match('(?:[^\t]+\t){5}([^\t]+)', line).group(1)
+            len_match = parse_cigar(cigar, 0)
+            pos_end = pos_start + len_match
+            print "Matched: %s - %s = %s - %s" % (pos_start, cigar, len_match, pos_end)
             for each_key in a_details:
                 if each_key not in counts_am:
                     counts_am[each_key] = 0
-                if pos_start >= a_details[each_key][0] and m_pos <= a_details[each_key][1]:
+                if pos_start >= a_details[each_key][0] and pos_end <= a_details[each_key][1]:
                     counts_am[each_key] += 1
                 if each_key not in counts_in:
                     counts_in[each_key] = 0
-                if pos_start >= a_details[each_key][2] and m_pos <= a_details[each_key][3]:
+                if pos_start >= a_details[each_key][2] and pos_end <= a_details[each_key][3]:
                     counts_in[each_key] += 1
         #print "count_am: %s" % counts_am
     amplicon_stat_am.append(counts_am)
