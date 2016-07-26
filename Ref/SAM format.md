@@ -41,5 +41,4 @@ Alignment section 示例：
 >6. **CIGAR:** CIGAR string. The CIGAR operations are given in the following table (set ‘*’ if unavailable):
 >   ​
 >    ![The CIGAR operations](pic/屏幕快照 2016-07-22 下午4.38.24.png)
->   ​
 

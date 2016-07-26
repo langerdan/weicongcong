@@ -11,7 +11,8 @@ import sys
 
 import xlwt
 
-from Project.Pyject.Lib.BASE import get_file_path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+from Pyject.Lib.BASE import get_file_path
 
 
 def read_primer_details(p_file):
@@ -65,7 +66,7 @@ def save_stat(y_data1, y_data2, x_axis):
 
 
 def parse_cigar(operations, len_valid):
-    print operations
+    #print operations
     if re.match('\d+\w', operations):
         len_frag, cigar_op = re.match('(\d+)(\w)', operations).group(1, 2)
         rest_op = operations[len(len_frag)+1:]
