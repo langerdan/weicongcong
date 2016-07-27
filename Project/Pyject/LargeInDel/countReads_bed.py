@@ -27,7 +27,7 @@ def read_bed(path_b):
                 pos_s = int(re.match('[^\t]+\t([^\t]+\t)', line_b).group(1))
                 pos_e = int(re.match('(?:[^\t]+\t){2}([^\t]+\t)', line_b).group(1))
                 gene_name = re.match('(?:[^\t]+\t){3}([^\t\n\r]+)', line_b).group(1)
-                if re.match('[:-]', gene_name):
+                if re.search('[:\-_]', gene_name):
                     gene_name = ' '
                 amplicon_details["%s-%s-%s" % (chr_n, gene_name, pos_s)] = [chr_n, pos_s, pos_e]
     return amplicon_details
@@ -48,17 +48,51 @@ def parse_cigar(operations, len_valid):
     return len_valid
 
 
-def save_tab(x_data, y_axis, tab_name):
-    with open(os.path.join(dir_sam, tab_name), 'wb') as w_obj:
-        w_obj.write("\t%s\n" % '\t'.join(y_axis))
-        for each_sample in x_data:
-            w_obj.write(each_sample)
-            for key in a_details_sorted:
-                w_obj.write("\t%s" % each_sample[key])
+def save_tab(y_data, x_axis, tab_name):
+    sum_row_list = []
+    sum_col_list = [0 for x in a_details_sorted]
+    # write tab - amplicon
+    with open(os.path.join(dir_sam, "%s-amplicon" % tab_name), 'wb') as w_obj:
+        w_obj.write("\t%s\n" % '\t'.join(x_axis))
+        for key, value in a_details_sorted:
+            w_obj.write(key)
+            sum_row = 0
+            for each_sample in y_data:
+                w_obj.write("\t%d" % each_sample[key])
+                sum_row += each_sample[key]
+                sum_col_list[a_details_sorted.index((key, value))] += each_sample[key]
+            sum_row_list.append(sum_row)
+            print "sample: %s sum is %d" % (key, sum_row)
+            w_obj.write('\n')
+        print "%d reads sum are: %s" % (len(a_details_sorted), sum_col_list)
+
+    # write tab - nli-sample-sum
+    with open(os.path.join(dir_sam, "%s-nli-sample-sum" % tab_name), 'wb') as w_obj:
+        w_obj.write("\t%s\n" % '\t'.join(x_axis))
+        for key, value in a_details_sorted:
+            w_obj.write(key)
+            for each_sample in y_data:
+                sum_sample = sum_row_list[a_details_sorted.index((key, value))]
+                if sum_sample != 0:
+                    w_obj.write("\t%d" % (each_sample[key] / sum_sample * 10000))
+                else:
+                    w_obj.write("\t0")
             w_obj.write('\n')
 
+    # write tab - nli-reads-aver
+    with open(os.path.join(dir_sam, "%s-nli-reads-aver" % tab_name), 'wb') as w_obj:
+        w_obj.write("\t%s\n" % '\t'.join(x_axis))
+        for key, value in a_details_sorted:
+            w_obj.write(key)
+            for each_sample in y_data:
+                aver_reads = sum_row_list[a_details_sorted.index((key, value))] / len(a_details_sorted)
+                if aver_reads != 0:
+                    w_obj.write("\t%d" % (each_sample[key] / aver_reads))
+                else:
+                    w_obj.write("\t0")
+            w_obj.write('\n')
 
-def save_stat(x_data, y_axis):
+def save_stat(y_data, x_axis):
     def set_style(height=210, bold=False, color_index=xlwt.Style.colour_map['black'], name='Microsoft YaHei UI'):
         style = xlwt.XFStyle()
         font = xlwt.Font()
@@ -73,14 +107,14 @@ def save_stat(x_data, y_axis):
     workbook = xlwt.Workbook(style_compression=2)
 
     sheet1 = workbook.add_sheet(u'amplicon', cell_overwrite_ok=True)
-    sheet2 = workbook.add_sheet(u'normal-sample', cell_overwrite_ok=True)
-    sheet3 = workbook.add_sheet(u'normal-aver', cell_overwrite_ok=True)
+    sheet2 = workbook.add_sheet(u'nli-sample-sum', cell_overwrite_ok=True)
+    sheet3 = workbook.add_sheet(u'nli-reads-aver', cell_overwrite_ok=True)
 
     sum_row_list = []
     sum_col_list = [0 for x in a_details_sorted]
     # write sheet 1
-    for (row_no, row_data) in enumerate(x_data):
-        sheet1.write(row_no + 1, 0, y_axis[row_no], set_style(220, True))
+    for (row_no, row_data) in enumerate(y_data):
+        sheet1.write(row_no + 1, 0, x_axis[row_no], set_style(220, True))
         sum_row = 0
         for (key, value) in a_details_sorted:
             sheet1.write(0, a_details_sorted.index((key, value)) + 1, key, set_style(220, True))
@@ -88,20 +122,20 @@ def save_stat(x_data, y_axis):
             sum_row += row_data[key]
             sum_col_list[a_details_sorted.index((key, value))] += row_data[key]
         sum_row_list.append(sum_row)
-        print "sample: %s sum is %d" % (y_axis[row_no], sum_row)
-        print "%d cols sum are: %s" % (len(a_details_sorted), sum_col_list)
+        print "sample: %s sum is %d" % (x_axis[row_no], sum_row)
+    print "%d cols sum are: %s" % (len(a_details_sorted), sum_col_list)
 
     # write sheet 2
-    for (row_no, row_data) in enumerate(x_data):
-        sheet2.write(row_no + 1, 0, y_axis[row_no], set_style(220, True))
+    for (row_no, row_data) in enumerate(y_data):
+        sheet2.write(row_no + 1, 0, x_axis[row_no], set_style(220, True))
         for (key, value) in a_details_sorted:
             sheet2.write(0, a_details_sorted.index((key, value)) + 1, key, set_style(220, True))
             sheet2.write(row_no + 1, a_details_sorted.index((key, value)) + 1,
                          row_data[key] / sum_row_list[a_details_sorted.index((key, value))] * 10000)
 
     # write_sheet 3
-    for (row_no, row_data) in enumerate(x_data):
-        sheet3.write(row_no + 1, 0, y_axis[row_no], set_style(220, True))
+    for (row_no, row_data) in enumerate(y_data):
+        sheet3.write(row_no + 1, 0, x_axis[row_no], set_style(220, True))
         for (key, value) in a_details_sorted:
             sheet3.write(0, a_details_sorted.index((key, value)) + 1, key, set_style(220, True))
             sheet3.write(row_no + 1, a_details_sorted.index((key, value)) + 1,
@@ -150,8 +184,7 @@ for each_p_sam in path_sam_list:
 
 a_details_sorted = sorted(a_details.iteritems(), key=itemgetter(0, 1))
 print "output table...",
-save_tab(amplicon_stat, sam_basename_list, 'reads_statistics.txt')
-save_stat(amplicon_stat, sam_basename_list)
+save_tab(amplicon_stat, sam_basename_list, 'reads_statistics')
 print "OK!\n==============================================\nDone!"
 
 
