@@ -50,7 +50,7 @@ def parse_cigar(operations, len_valid):
 
 def save_tab(y_data, x_axis, tab_name):
     sum_row_list = []
-    sum_col_list = [0 for x in a_details_sorted]
+    sum_col_list = [0 for x in x_axis]
     # write tab - amplicon
     with open(os.path.join(dir_sam, "%s-amplicon" % tab_name), 'wb') as w_obj:
         w_obj.write("\t%s\n" % '\t'.join(x_axis))
@@ -60,11 +60,11 @@ def save_tab(y_data, x_axis, tab_name):
             for each_sample in y_data:
                 w_obj.write("\t%d" % each_sample[key])
                 sum_row += each_sample[key]
-                sum_col_list[a_details_sorted.index((key, value))] += each_sample[key]
+                sum_col_list[y_data.index(each_sample)] += each_sample[key]
             sum_row_list.append(sum_row)
-            print "sample: %s sum is %d" % (key, sum_row)
+            print "amplicon: %s sum is %d" % (key, sum_row)
             w_obj.write('\n')
-        print "%d reads sum are: %s" % (len(a_details_sorted), sum_col_list)
+        print "%d samples sum are: %s" % (len(x_axis), sum_col_list)
 
     # write tab - nli-sample-sum
     with open(os.path.join(dir_sam, "%s-nli-sample-sum" % tab_name), 'wb') as w_obj:
@@ -72,7 +72,7 @@ def save_tab(y_data, x_axis, tab_name):
         for key, value in a_details_sorted:
             w_obj.write(key)
             for each_sample in y_data:
-                sum_sample = sum_row_list[a_details_sorted.index((key, value))]
+                sum_sample = sum_col_list[y_data.index(each_sample)]
                 if sum_sample != 0:
                     w_obj.write("\t%d" % (each_sample[key] / sum_sample * 10000))
                 else:
@@ -85,12 +85,13 @@ def save_tab(y_data, x_axis, tab_name):
         for key, value in a_details_sorted:
             w_obj.write(key)
             for each_sample in y_data:
-                aver_reads = sum_row_list[a_details_sorted.index((key, value))] / len(a_details_sorted)
+                aver_reads = sum_row_list[a_details_sorted.index((key, value))] / len(x_axis)
                 if aver_reads != 0:
                     w_obj.write("\t%d" % (each_sample[key] / aver_reads))
                 else:
                     w_obj.write("\t0")
             w_obj.write('\n')
+
 
 def save_stat(y_data, x_axis):
     def set_style(height=210, bold=False, color_index=xlwt.Style.colour_map['black'], name='Microsoft YaHei UI'):
@@ -110,36 +111,45 @@ def save_stat(y_data, x_axis):
     sheet2 = workbook.add_sheet(u'nli-sample-sum', cell_overwrite_ok=True)
     sheet3 = workbook.add_sheet(u'nli-reads-aver', cell_overwrite_ok=True)
 
-    sum_row_list = []
-    sum_col_list = [0 for x in a_details_sorted]
-    # write sheet 1
-    for (row_no, row_data) in enumerate(y_data):
-        sheet1.write(row_no + 1, 0, x_axis[row_no], set_style(220, True))
-        sum_row = 0
-        for (key, value) in a_details_sorted:
-            sheet1.write(0, a_details_sorted.index((key, value)) + 1, key, set_style(220, True))
-            sheet1.write(row_no + 1, a_details_sorted.index((key, value)) + 1, row_data[key])
-            sum_row += row_data[key]
-            sum_col_list[a_details_sorted.index((key, value))] += row_data[key]
-        sum_row_list.append(sum_row)
-        print "sample: %s sum is %d" % (x_axis[row_no], sum_row)
-    print "%d cols sum are: %s" % (len(a_details_sorted), sum_col_list)
+    sum_row_list = [0 for x in a_details_sorted]
+    sum_col_list = []
+    # write sheet1 - amplicon
+    for key, value in a_details_sorted:
+        sheet1.write(a_details_sorted.index((key, value)) + 1, 0, key, set_style(220, True))
+    for x_no, x in enumerate(x_axis):
+        sheet1.write(0, x_no + 1, x, set_style(220, True))
+        sum_col = 0
+        for key, value in a_details_sorted:
+            sheet1.write(a_details_sorted.index((key, value)) + 1, x_no + 1, y_data[x_no][key])
+            sum_col += y_data[x_no][key]
+            sum_row_list[a_details_sorted.index((key, value))] += y_data[x_no][key]
+        sum_col_list.append(sum_col)
+        print "sample: %s sum is %d" % (x, sum_col)
+    print "%d amplicons sum are: %s" % (len(a_details_sorted), sum_row_list)
 
-    # write sheet 2
-    for (row_no, row_data) in enumerate(y_data):
-        sheet2.write(row_no + 1, 0, x_axis[row_no], set_style(220, True))
-        for (key, value) in a_details_sorted:
-            sheet2.write(0, a_details_sorted.index((key, value)) + 1, key, set_style(220, True))
-            sheet2.write(row_no + 1, a_details_sorted.index((key, value)) + 1,
-                         row_data[key] / sum_row_list[a_details_sorted.index((key, value))] * 10000)
+    # write sheet2 - nli-sample-sum
+    for key, value in a_details_sorted:
+        sheet2.write(a_details_sorted.index((key, value)) + 1, 0, key, set_style(220, True))
+    for x_no, x in enumerate(x_axis):
+        sheet2.write(0, x_no + 1, x, set_style(220, True))
+        sample_sum = sum_col_list[x_no]
+        for key, value in a_details_sorted:
+            if sample_sum != 0:
+                sheet2.write(a_details_sorted.index((key, value)) + 1, x_no + 1, y_data[x_no][key] / sample_sum * 10000)
+            else:
+                sheet2.write(a_details_sorted.index((key, value)) + 1, x_no + 1, 0)
 
-    # write_sheet 3
-    for (row_no, row_data) in enumerate(y_data):
-        sheet3.write(row_no + 1, 0, x_axis[row_no], set_style(220, True))
-        for (key, value) in a_details_sorted:
-            sheet3.write(0, a_details_sorted.index((key, value)) + 1, key, set_style(220, True))
-            sheet3.write(row_no + 1, a_details_sorted.index((key, value)) + 1,
-                         row_data[key] / sum_col_list[a_details_sorted.index((key, value))] * len(a_details_sorted))
+    # write_sheet3 - nli-reads-aver
+    for x_no, x in enumerate(x_axis):
+        sheet3.write(0, x_no + 1, x, set_style(220, True))
+    for key, value in a_details_sorted:
+        for x_no, x in enumerate(x_axis):
+            sheet3.write(a_details_sorted.index((key, value)) + 1, 0, key, set_style(220, True))
+            amplicon_aver = sum_row_list[a_details_sorted.index((key, value))] / len(x_axis)
+            if amplicon_aver != 0:
+                sheet3.write(a_details_sorted.index((key, value)) + 1, x_no + 1, y_data[x_no][key] / amplicon_aver)
+            else:
+                sheet3.write(a_details_sorted.index((key, value)) + 1, x_no + 1, 0)
 
     workbook.save(path_xls)
 
@@ -155,7 +165,7 @@ print a_details
 amplicon_stat = []
 
 print "=>get all paths of *.sam file...",
-path_sam_list = get_file_path(dir_sam, "sam")
+path_sam_list = get_file_path(dir_sam, "sam", 'list', 1)
 print "OK! total %d." % len(path_sam_list)
 
 sam_basename_list = []
@@ -172,8 +182,6 @@ for each_p_sam in path_sam_list:
             cigar = re.match('(?:[^\t]+\t){5}([^\t]+)', line_sam).group(1)
             len_match = parse_cigar(cigar, 0)
             pos_end = pos_start + len_match
-            if len_match == 0:
-                print "0 warning: %s - %s = %s - %s" % (pos_start, cigar, len_match, pos_end)
             for each_key in a_details:
                 if each_key not in counts:
                     counts[each_key] = 0
@@ -185,6 +193,7 @@ for each_p_sam in path_sam_list:
 a_details_sorted = sorted(a_details.iteritems(), key=itemgetter(0, 1))
 print "output table...",
 save_tab(amplicon_stat, sam_basename_list, 'reads_statistics')
+save_stat(amplicon_stat, sam_basename_list)
 print "OK!\n==============================================\nDone!"
 
 
