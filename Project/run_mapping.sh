@@ -3,7 +3,7 @@
 dir=$1
 
 pair=1
-for file in `ls $dir`:
+for file in `ls $dir`
 do
     echo $file
     if [ $pair -eq 1 ];

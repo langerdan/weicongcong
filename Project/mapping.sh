@@ -3,28 +3,15 @@
 r1=$1
 r2=$2
 genome=/Users/codeunsolved/NGS/RefGenome/UCSC/hg19/hg19
-echo "=>r1:$r1 r2:$r2"
+echo "=>r1:$r1\n=>r2:$r2"
 echo "=>genome: $genome"
 
-rx_basename=0
-p_dir=0
-function getBasename(){
-    if [[ $1 =~ '^(.*/)(.+)\.[^\.]+$' ]];
-    then
-        p_dir=$match[1]
-        rx_basename=$match[2]
-    elif [[ $1 =~ '^(.+)\.[^\.]+$' ]];
-    then
-        p_dir=./
-        rx_basename=$match[1]
-    fi
-    echo "=>$2's basename seems like: $rx_basename"
-}
+r1_basename=$(basename $r1)
+r2_basename=$(basename $r2)
+echo "=>r1's basename seems like: $r1_basename"
+echo "=>r2's basename seems like: $r2_basename"
 
-getBasename $r1 r1
-r1_basename=$rx_basename
-getBasename $r2 r2
-r2_baseanme=$rx_basename
+r_dirname=$(dirname $r1)
 
 if [[ $r1_basename =~ '^(.+)_R[12]' ]];
 then
@@ -35,11 +22,11 @@ else
     r_basename='sample'
 fi
 
-r_path=${p_dir}$r_basename
+r_path=${r_dirname}/$r_basename
 echo "=>output path: $r_path"
 
 printf "[STEP 1/4]output SAM..."
-bwa mem -t 4 -M $genome $r1 $r2 >${r_path}.sam
+bwa mem -t 3 -M $genome $r1 $r2 >${r_path}.sam
 printf "OK!\n"
 
 printf "[STEP 2/4]trans SAM to BAM..."
@@ -56,4 +43,3 @@ printf "OK!\n"
 
 echo "=============================================="
 echo "Done!"
-
