@@ -13,8 +13,7 @@ echo "=>r2's basename seems like: $r2_basename"
 
 r_dirname=$(dirname $r1)
 
-if [[ $r1_basename =~ '^(.+)_R[12]' ]];
-then
+if [[ $r1_basename =~ '^(.+)_R[12]' ]]; then
     r_basename=$match[1]
     echo "=>reads' basename seems like: $r_basename"
 else
