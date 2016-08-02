@@ -13,7 +13,7 @@ if [ $# -eq 3 ];
     if [[ $operations =~ '^([+])(.+)$' ]]; then
         mod_flag=$match[1]
         tag=.$match[2]
-    elif [[ $operations =~ '^([-=])$' ]]; then
+    elif [[ $operations =~ '^([-=])' ]]; then
         mod_flag=$match[1]
         tag=''
     elif [[ $operations =~ '^([#])(.+)#(.+)$' ]]; then
