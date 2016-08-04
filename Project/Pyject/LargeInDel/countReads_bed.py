@@ -7,7 +7,6 @@
 
 
 from __future__ import division
-from operator import itemgetter
 import os
 import re
 import sys
@@ -54,8 +53,8 @@ def parse_cigar(operations, len_valid):
 def save_tab(y_data, x_axis, tab_name):
     sum_row_list = []
     sum_col_list = [0 for x in x_axis]
-    # write tab - amplicon
-    with open(os.path.join(dir_sam, "%s-amplicon" % tab_name), 'wb') as w_obj:
+    # write tab - reads
+    with open(os.path.join(dir_sam, "%s-reads" % tab_name), 'wb') as w_obj:
         w_obj.write("\t%s\n" % '\t'.join(x_axis))
         for key, value in amplicon_details_sorted:
             w_obj.write(key)
@@ -82,8 +81,8 @@ def save_tab(y_data, x_axis, tab_name):
                     w_obj.write("\t0")
             w_obj.write('\n')
 
-    # write tab - nli-reads-aver
-    with open(os.path.join(dir_sam, "%s-nli-reads-aver" % tab_name), 'wb') as w_obj:
+    # write tab - nli-amplicon-aver
+    with open(os.path.join(dir_sam, "%s-nli-amplicon-aver" % tab_name), 'wb') as w_obj:
         w_obj.write("\t%s\n" % '\t'.join(x_axis))
         for key, value in amplicon_details_sorted:
             w_obj.write(key)
@@ -110,13 +109,13 @@ def save_stat(y_data, x_axis):
     path_xls = os.path.join(dir_sam, 'reads_stat.xls')
     workbook = xlwt.Workbook(style_compression=2)
 
-    sheet1 = workbook.add_sheet(u'amplicon', cell_overwrite_ok=True)
+    sheet1 = workbook.add_sheet(u'reads', cell_overwrite_ok=True)
     sheet2 = workbook.add_sheet(u'nli-sample-sum', cell_overwrite_ok=True)
-    sheet3 = workbook.add_sheet(u'nli-reads-aver', cell_overwrite_ok=True)
+    sheet3 = workbook.add_sheet(u'nli-amplicon-aver', cell_overwrite_ok=True)
 
     sum_row_list = [0 for x in amplicon_details_sorted]
     sum_col_list = []
-    # write sheet1 - amplicon
+    # write sheet1 - reads
     for key, value in amplicon_details_sorted:
         sheet1.write(amplicon_details_sorted.index((key, value)) + 1, 0, key, set_style(220, True))
     for x_no, x in enumerate(x_axis):
@@ -142,7 +141,7 @@ def save_stat(y_data, x_axis):
             else:
                 sheet2.write(amplicon_details_sorted.index((key, value)) + 1, x_no + 1, 0)
 
-    # write_sheet3 - nli-reads-aver
+    # write_sheet3 - nli-amplicon-aver
     for x_no, x in enumerate(x_axis):
         sheet3.write(0, x_no + 1, x, set_style(220, True))
     for key, value in amplicon_details_sorted:
@@ -180,13 +179,13 @@ if __name__ == '__main__':
     amplicon_stat = []
 
     print "=>get all paths of *.sam file..."
-    path_sam_list = get_file_path(dir_sam, "sam", 'list', 1)
+    path_sam_list = get_file_path(dir_sam, "sam", 'list', 2)
     print "OK! total %d." % len(path_sam_list)
 
     sam_basename_list = []
     for each_p_sam in path_sam_list:
         print "[No.%d/%d]processing with %s..." % (path_sam_list.index(each_p_sam) + 1, len(path_sam_list), each_p_sam)
-        sam_basename_list.append(re.match('(.+)\.sam', os.path.basename(each_p_sam)).group(1))
+        sam_basename_list.append(re.match('([^_]+_[^_]+)', os.path.basename(each_p_sam)).group(1))
         with open(each_p_sam, 'rb') as r_obj_sam:
             counts = {}
             log = {}
@@ -219,7 +218,7 @@ if __name__ == '__main__':
             output_log(log, "%s-mismatch.log" % os.path.basename(each_p_sam))
         amplicon_stat.append(counts)
 
-    amplicon_details_sorted = sorted(amplicon_details.iteritems(), key=itemgetter(0, 1))
+    amplicon_details_sorted = sorted(amplicon_details.iteritems(), key=lambda d: (d[1][0], d[1][1]))
     print "output table...",
     save_tab(amplicon_stat, sam_basename_list, 'reads_statistics')
     save_stat(amplicon_stat, sam_basename_list)
