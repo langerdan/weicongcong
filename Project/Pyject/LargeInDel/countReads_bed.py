@@ -17,7 +17,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(
 from Project.Pyject.Lib.BASE import get_file_path
 
 # CONFIG AREA #
-n = 1
+len_primer = 35
 
 
 def read_bed(path_b):
@@ -180,12 +180,18 @@ if __name__ == '__main__':
 
     print "=>get all paths of *.sam file..."
     path_sam_list = get_file_path(dir_sam, "sam", 'list', 2)
+    dir_basename = os.path.basename(dir_sam)
     print "OK! total %d." % len(path_sam_list)
 
     sam_basename_list = []
     for each_p_sam in path_sam_list:
         print "[No.%d/%d]processing with %s..." % (path_sam_list.index(each_p_sam) + 1, len(path_sam_list), each_p_sam)
         sam_basename_list.append(re.match('([^_]+_[^_]+)', os.path.basename(each_p_sam)).group(1))
+        n = None
+        if re.match('BRAC', dir_basename):
+            n = 35
+        elif re.match('onco', dir_basename):
+            n = 0
         with open(each_p_sam, 'rb') as r_obj_sam:
             counts = {}
             log = {}
@@ -205,7 +211,8 @@ if __name__ == '__main__':
                     if each_key not in counts:
                         counts[each_key] = 0
                     if chr_name == amplicon_details[each_key][0]:
-                        if pos_start >= amplicon_details[each_key][1] and pos_end - n <= amplicon_details[each_key][2]:
+                        if pos_start >= amplicon_details[each_key][1] - n and \
+                                                pos_end - 1 <= amplicon_details[each_key][2] + n:
                             counts[each_key] += 1
                             match_trigger = 1
                             break
