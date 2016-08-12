@@ -23,15 +23,14 @@ len_primer = 35
 def read_bed(path_b):
     a_details = {}
     with open(path_b, 'rb') as r_obj_b:
-        for line_no, line_b in enumerate(r_obj_b):
-            if line_no > 0:
-                chr_n = re.match('([^\t]+)\t', line_b).group(1)
-                pos_s = int(re.match('[^\t]+\t([^\t]+\t)', line_b).group(1))
-                pos_e = int(re.match('(?:[^\t]+\t){2}([^\t]+\t)', line_b).group(1))
-                gene_name = re.match('(?:[^\t]+\t){3}([^\t\n\r]+)', line_b).group(1)
-                if re.search('[:\-_]', gene_name):
-                    gene_name = ' '
-                a_details["%s-%s-%s" % (chr_n, gene_name, pos_s)] = [chr_n, pos_s, pos_e]
+        for line_b in r_obj_b:
+            chr_n = re.match('([^\t]+)\t', line_b).group(1)
+            pos_s = int(re.match('[^\t]+\t([^\t]+\t)', line_b).group(1))
+            pos_e = int(re.match('(?:[^\t]+\t){2}([^\t]+\t)', line_b).group(1))
+            gene_name = re.match('(?:[^\t]+\t){3}([^\t\n\r]+)', line_b).group(1)
+            if re.search('[:\-_]', gene_name):
+                gene_name = ' '
+            a_details["%s-%s-%s" % (chr_n, gene_name, pos_s)] = [chr_n, pos_s, pos_e]
     return a_details
 
 
