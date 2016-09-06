@@ -63,9 +63,9 @@ def save_tab(y_data, x_axis, tab_name):
                 sum_row += each_sample[key]
                 sum_col_list[y_data.index(each_sample)] += each_sample[key]
             sum_row_list.append(sum_row)
-            #print "amplicon: %s sum is %d" % (key, sum_row)
+            # print "amplicon: %s sum is %d" % (key, sum_row)
             w_obj.write('\n')
-        #print "%d samples sum are: %s" % (len(x_axis), sum_col_list)
+        # print "%d samples sum are: %s" % (len(x_axis), sum_col_list)
 
     # write tab - nli-sample-sum
     with open(os.path.join(dir_sam, "%s-nli-sample-sum" % tab_name), 'wb') as w_obj:
@@ -187,9 +187,9 @@ if __name__ == '__main__':
         print "[No.%d/%d]processing with %s..." % (path_sam_list.index(each_p_sam) + 1, len(path_sam_list), each_p_sam)
         sam_basename_list.append(re.match('([^_]+_[^_]+)', os.path.basename(each_p_sam)).group(1))
         n = None
-        if re.match('BRAC', dir_basename):
+        if re.match('BRCA', dir_basename):
             n = 35
-        elif re.match('onco', dir_basename):
+        elif re.match('onco|56gene|lung', dir_basename):
             n = 0
         with open(each_p_sam, 'rb') as r_obj_sam:
             counts = {}
@@ -203,7 +203,7 @@ if __name__ == '__main__':
                 pos_start = int(re.match('(?:[^\t]+\t){3}([^\t]+)', line_sam).group(1))
                 cigar = re.match('(?:[^\t]+\t){5}([^\t]+)', line_sam).group(1)
                 len_match = parse_cigar(cigar, 0)
-                pos_end = pos_start + len_match
+                pos_end = pos_start + len_match - 1
                 log_each = "%s-(%s-%s-%s)-%s" % (pos_start, chr_name, cigar, len_match, pos_end)
                 match_trigger = 0
                 for each_key in amplicon_details:
@@ -211,7 +211,7 @@ if __name__ == '__main__':
                         counts[each_key] = 0
                     if chr_name == amplicon_details[each_key][0]:
                         if pos_start >= amplicon_details[each_key][1] - n and \
-                                                pos_end - 1 <= amplicon_details[each_key][2] + n:
+                                                pos_end <= amplicon_details[each_key][2] + n:
                             counts[each_key] += 1
                             match_trigger = 1
                             break
@@ -221,7 +221,7 @@ if __name__ == '__main__':
                     else:
                         mismatch[log_each] += 1
             mismatch["@TotalReads"] = line_i
-            output_mismatch(mismatch, "%s-mismatch.log" % os.path.basename(each_p_sam))
+            output_mismatch(mismatch, "%s-mismatch.log" % re.match('(.+)\.sam', os.path.basename(each_p_sam)).group(1))
         amplicon_stat.append(counts)
 
     amplicon_details_sorted = sorted(amplicon_details.iteritems(), key=lambda d: (d[1][0], d[1][1]))
