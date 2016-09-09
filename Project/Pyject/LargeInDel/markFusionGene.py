@@ -29,8 +29,8 @@ def read_bed(path_b):
             chr_n = re.match('([^\t]+)\t', line_b).group(1)
             pos_s = int(re.match('[^\t]+\t([^\t]+\t)', line_b).group(1))
             pos_e = int(re.match('(?:[^\t]+\t){2}([^\t]+\t)', line_b).group(1))
-            gene_name = re.match('(?:[^\t]+\t){3}([^\t\n\r]+)', line_b).group(1)
-            if re.search('[:\-_]', gene_name):
+            gene_name = re.match('(?:[^\t]+\t){3}([^\t\r\n]+)', line_b).group(1)
+            if re.search('[:-_]', gene_name):
                 gene_name = ' '
             a_details["%s-%s-%s" % (chr_n, gene_name, pos_s)] = [chr_n, pos_s, pos_e, gene_name]
     return a_details
@@ -59,7 +59,7 @@ def read_fg_list(path_fg_l):
             fg_b = re.match('[^\t]+\t([^\t]+)', line_fg).group(1)
             chr_n = re.match('(?:[^\t]+\t){2}([^\t]+)', line_fg).group(1)
             pos_s = int(re.match('(?:[^\t]+\t){3}([^\t]+)', line_fg).group(1))
-            pos_e = int(re.match('(?:[^\t]+\t){4}([^\t\n\r]+)', line_fg).group(1))
+            pos_e = int(re.match('(?:[^\t]+\t){4}([^\t\r\n]+)', line_fg).group(1))
             if fg_a not in fg_d["ln_b"]:
                 fg_d["ln_b"][fg_a] = []
             fg_d["ln_b"][fg_a].append("%s-%s-%s" % (fg_b, chr_n, pos_s))
@@ -171,16 +171,16 @@ if __name__ == '__main__':
 
             for fg_a in fg_a_hit:
                 for fg_a_sn in fg_a_hit[fg_a]:
-                    gene_a_name = re.match('([^\-]+)\-', fg_a).group(1)
+                    gene_a_name = re.match('([^-]+)\-', fg_a).group(1)
                     for fg_b in fg_details["ln_b"][gene_a_name]:
                         if fg_b in fg_b_hit:
                             for fg_b_sn in fg_b_hit[fg_b]:
                                 if fg_a_sn == fg_b_sn:
-                                    fg_output.append([gene_a_name, re.match('([^\-]+)\-', fg_b).group(1),
+                                    fg_output.append([gene_a_name, re.match('([^-]+)\-', fg_b).group(1),
                                         fg_details["fg_b"][fg_b]["chr"],
                                         fg_details["fg_b"][fg_b]["pos_s"], fg_details["fg_b"][fg_b]["pos_e"],
                                         fg_seq[fg_a_sn]])
-                                    key_name = "%s-%s-%s-%s" % (gene_a_name, re.match('([^\-]+)\-', fg_b).group(1), 
+                                    key_name = "%s-%s-%s-%s" % (gene_a_name, re.match('([^-]+)\-', fg_b).group(1),
                                         fg_details["fg_b"][fg_b]["chr"], fg_details["fg_b"][fg_b]["pos_s"])
                                     if key_name not in fg_dedup:
                                         fg_dedup[key_name] = [1, fg_seq[fg_a_sn]]

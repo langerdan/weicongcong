@@ -27,8 +27,8 @@ def read_bed(path_b):
             chr_n = re.match('([^\t]+)\t', line_b).group(1)
             pos_s = int(re.match('[^\t]+\t([^\t]+\t)', line_b).group(1))
             pos_e = int(re.match('(?:[^\t]+\t){2}([^\t]+\t)', line_b).group(1))
-            gene_name = re.match('(?:[^\t]+\t){3}([^\t\n\r]+)', line_b).group(1)
-            if re.search('[:\-_]', gene_name):
+            gene_name = re.match('(?:[^\t]+\t){3}([^\t\r\n]+)', line_b).group(1)
+            if re.search('[:-_]', gene_name):
                 gene_name = ' '
             a_details["%s-%s-%s" % (chr_n, gene_name, pos_s)] = [chr_n, pos_s, pos_e, gene_name]
     return a_details
@@ -185,11 +185,14 @@ if __name__ == '__main__':
     sam_basename_list = []
     for each_p_sam in path_sam_list:
         print "[No.%d/%d]processing with %s..." % (path_sam_list.index(each_p_sam) + 1, len(path_sam_list), each_p_sam)
-        sam_basename_list.append(re.match('([^_]+_[^_]+)', os.path.basename(each_p_sam)).group(1))
+        sam_basename = re.match('(.+)\.sam', os.path.basename(each_p_sam)).group(1)
+        if re.search('_S\d+_L\d+', sam_basename):
+            sam_basename = rre.match('(.+)_S\d+_L\d+', sam_basename).group(1)
+        sam_basename_list.append(sam_basename)
         n = None
         if re.match('BRCA', dir_basename):
             n = 35
-        elif re.match('onco|56gene|lung', dir_basename):
+        else:
             n = 0
         with open(each_p_sam, 'rb') as r_obj_sam:
             counts = {}
