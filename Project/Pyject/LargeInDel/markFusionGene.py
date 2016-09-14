@@ -17,38 +17,12 @@ import xlwt
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 from Project.Pyject.Lib.BASE import get_file_path
+from Project.Pyject.Lib.BASE import read_bed
+from Project.Pyject.Lib.BASE import parse_cigar
+
 
 # CONFIG AREA #
 len_primer = 35
-
-
-def read_bed(path_b):
-    a_details = {}
-    with open(path_b, 'rb') as r_obj_b:
-        for line_b in r_obj_b:
-            chr_n = re.match('([^\t]+)\t', line_b).group(1)
-            pos_s = int(re.match('[^\t]+\t([^\t]+\t)', line_b).group(1))
-            pos_e = int(re.match('(?:[^\t]+\t){2}([^\t]+\t)', line_b).group(1))
-            gene_name = re.match('(?:[^\t]+\t){3}([^\t\r\n]+)', line_b).group(1)
-            if re.search('[:-_]', gene_name):
-                gene_name = ' '
-            a_details["%s-%s-%s" % (chr_n, gene_name, pos_s)] = [chr_n, pos_s, pos_e, gene_name]
-    return a_details
-
-
-def parse_cigar(operations, len_valid):
-    # print operations
-    if re.match('\d+\w', operations):
-        len_frag, cigar_op = re.match('(\d+)(\w)', operations).group(1, 2)
-        rest_op = operations[len(len_frag) + 1:]
-        len_frag = int(len_frag)
-        if cigar_op in ('M', 'I'):
-            len_valid += len_frag
-        elif cigar_op in ('D', 'S', 'H', 'P', 'N'):
-            pass
-        if rest_op:
-            len_valid = parse_cigar(rest_op, len_valid)
-    return len_valid
 
 
 def read_fg_list(path_fg_l):
@@ -194,7 +168,7 @@ if __name__ == '__main__':
         if fg_output:
             output_fg(fg_output, fg_dedup, output_filename)
         else:
-            open(os.path.join(dir_sam, output_filename, 'wb'))
+            open(os.path.join(dir_sam, output_filename), 'wb')
         print "OK!"
 
     print "==============================================\nDone!"
