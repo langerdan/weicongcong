@@ -15,10 +15,10 @@ import sys
 
 import xlwt
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
-from Project.Pyject.Lib.BASE import get_file_path
-from Project.Pyject.Lib.BASE import read_bed
-from Project.Pyject.Lib.BASE import parse_cigar
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+from Project.Lib.BASE import get_file_path
+from Project.Lib.BASE import read_bed
+from Project.Lib.BASE import parse_cigar
 
 
 # CONFIG AREA #
