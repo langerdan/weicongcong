@@ -2,7 +2,7 @@
 
 com_line=$1
 with_obj=$2
-if [ $# -eq 3 ];
+if [[ $# -eq 3 ]];
     then
     operations=$3
     redi_flag=''
@@ -26,10 +26,10 @@ fi
 for file in `eval $with_obj`
 do
     file_basename=$(basename $file)
-    if [ $# -eq 2 ]; then
+    if [[ $# -eq 2 ]]; then
         echo "=>Command: $com_line $file"
         eval $com_line $file
-    elif [ $# -eq 3 ]; then
+    elif [[ $# -eq 3 ]]; then
         if [[ $mod_flag =~ '\+' ]]; then
             echo "=>Command: $com_line $file ${redi_flag}${file_basename}${tag}"
             eval $com_line $file ${redi_flag}${file_basename}${tag}

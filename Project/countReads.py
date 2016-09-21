@@ -10,13 +10,14 @@ from __future__ import division
 import os
 import re
 import sys
+import datetime
 
 import xlwt
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from Project.Lib.BASE import get_file_path
 from Project.Lib.BASE import read_bed
-from Project.Lib.BASE import parse_cigar
+from Project.Lib.BASE import parse_cigar_len
 
 
 # CONFIG AREA #
@@ -141,8 +142,11 @@ def output_mismatch(data, log_name):
 
 
 if __name__ == '__main__':
-    path_bed = sys.argv[1]
-    dir_sam = sys.argv[2]
+    dir_sam = sys.argv[1]
+    path_bed = sys.argv[2]
+    print "========================================================"
+    print datetime.datetime.now().strftime('%Y年%m月%d日 %H:%M:%S')
+    print "========================================================"
     print "=>path of *.bed: %s\n=>dir of *.sam: %s" % (path_bed, dir_sam)
 
     print "=>get amplicon details...",
@@ -179,7 +183,7 @@ if __name__ == '__main__':
                 chr_name = re.match('(?:[^\t]+\t){2}([^\t]+)', line_sam).group(1)
                 pos_start = int(re.match('(?:[^\t]+\t){3}([^\t]+)', line_sam).group(1))
                 cigar = re.match('(?:[^\t]+\t){5}([^\t]+)', line_sam).group(1)
-                len_match = parse_cigar(cigar, 0)
+                len_match = parse_cigar_len(cigar, 0)
                 pos_end = pos_start + len_match - 1
                 log_each = "%s-(%s-%s-%s)-%s" % (pos_start, chr_name, cigar, len_match, pos_end)
                 match_trigger = 0
@@ -187,7 +191,7 @@ if __name__ == '__main__':
                     if each_key not in counts:
                         counts[each_key] = 0
                     if chr_name == amplicon_details[each_key][0]:
-                        if pos_start >= amplicon_details[each_key][1] - n and \
+                        if pos_start >= amplicon_details[each_key][2] - n and \
                                                 pos_end <= amplicon_details[each_key][2] + n:
                             counts[each_key] += 1
                             match_trigger = 1

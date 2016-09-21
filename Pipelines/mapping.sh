@@ -2,6 +2,11 @@
 
 r1=$1
 r2=$2
+if [[ $# -eq 3 ]]; then
+    log_name=$3
+else
+    log_name="Mapping"
+fi
 
 MAPPINGTIME=`python -c 'import time; print time.time()'`
 ref_genome=/Users/codeunsolved/NGS/RefGenome/UCSC/hg19/hg19
@@ -12,7 +17,7 @@ r2_filename=$(basename $r2)
 echo "=>r1's filename: $r1_filename\n=>r2's filename: $r2_filename"
 
 r_dir=$(dirname $r1)
-log=${r_dir}/preVarantCalling.log
+log=${r_dir}/${log_name}.log
 
 if [[ $r1_filename =~ '^(.+)_R[12]' ]]; then
     r_basename=$match[1]

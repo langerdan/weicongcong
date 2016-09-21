@@ -10,7 +10,7 @@ echo "=>dir_vcf: $dir_vcf\n=>dir_output: $dir_output\n=>RefGenome: $ref_genome"
 
 for file in `ls $dir_vcf`
 do
-    if [[ $file =~ '^(.+)\.vcf' ]]; then
+    if [[ $file =~ '^(.+)\.vcf$' ]]; then
         vcf_basename=$match[1]
         echo "=>vcf' basename seems like: $vcf_basename"
         bcftools norm -m-both -o $dir_output/$vcf_basename.split.vcf $dir_vcf/$file

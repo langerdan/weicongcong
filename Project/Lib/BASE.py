@@ -12,31 +12,30 @@ import re
 
 
 def read_bed(path_b):
-    a_details = {}
+    f_details = {}
     with open(path_b, 'rb') as r_obj_b:
         for line_b in r_obj_b:
             chr_n = re.match('([^\t]+)\t', line_b).group(1)
             pos_s = int(re.match('[^\t]+\t([^\t]+\t)', line_b).group(1))
             pos_e = int(re.match('(?:[^\t]+\t){2}([^\t]+\t)', line_b).group(1))
-            gene_name = re.match('(?:[^\t]+\t){3}([^\t\r\n]+)', line_b).group(1)
-            if re.search('[:-_]', gene_name):
+            gene_name = re.match('(?:[^\t]+\t){3}([^\t\n\r]+)', line_b).group(1)
+            if re.search('[:\-_]', gene_name):
                 gene_name = ' '
-            a_details["%s-%s-%s" % (chr_n, gene_name, pos_s)] = [chr_n, pos_s, pos_e, gene_name]
-    return a_details
+            f_details["%s-%s-%s-%s" % (chr_n, gene_name, pos_s, pos_e)] = [chr_n, gene_name, pos_s, pos_e]
+    return f_details
 
 
-def parse_cigar(operations, len_valid):
-    # print operations
+def parse_cigar_len(operations, len_valid):
     if re.match('\d+\w', operations):
         len_frag, cigar_op = re.match('(\d+)(\w)', operations).group(1, 2)
         rest_op = operations[len(len_frag) + 1:]
-        len_frag = int(len_frag)
+        num_frag = int(len_frag)
         if cigar_op in ('M', 'I'):
-            len_valid += len_frag
+            len_valid += num_frag
         elif cigar_op in ('D', 'S', 'H', 'P', 'N'):
             pass
         if rest_op:
-            len_valid = parse_cigar(rest_op, len_valid)
+            len_valid = parse_cigar_len(rest_op, len_valid)
     return len_valid
 
 
