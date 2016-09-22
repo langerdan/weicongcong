@@ -1,7 +1,19 @@
+echo "========================================================"
+echo "\033[1;32m$(date)\033[0m"
+echo "========================================================"
 STARTTIME=`python -c 'import time; print time.time()'`
-echo "$*"
-eval "$*"
+Command=""
+for x in "$@"
+do
+	if [[ $x =~ ' ' ]]; then
+		x=\"$x\"
+	fi
+	Command="$Command $x"
+done
+echo "\033[1;36mCommand: $Command\033[0m"
 echo "========================================================"
-echo "run time: "$(bc -l <<< "scale=2; `python -c 'import time; print time.time()'`-$STARTTIME")s| tee -a $log
+eval $Command
 echo "========================================================"
-doneRemind "work done!"
+echo "\033[1;32mrun time: "$(bc -l <<< "scale=2; `python -c 'import time; print time.time()'`-$STARTTIME")"s\033[0m"
+echo "========================================================"
+doneRemind "mission complete!"
