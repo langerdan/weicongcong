@@ -1,12 +1,12 @@
 #!/use/bin/env python
 # -*- coding: utf-8 -*-
-# PROGRAM  : countReads_v0.01
-# PURPOSE  :
-# AUTHOR   : codeunsolved@gmail.com
-# CREATED  : July 27 2016
-# UPDATE   : [v0.01] September 2 2016
-# 1. add reduplicate statistics
-
+# PROGRAM : markFusionGene
+# AUTHOR  : codeunsolved@gmail.com
+# CREATED : August 12 2016
+# VERSION : v0.0.1
+# UPDATE  : [v0.0.1] September 23 2016
+# 1. optimize read_fg_list(); 2. redesign fusion-gene.log("Gene A", "Gene A Seq", "Fusion Part", "Flag|CIGAR", "Gene B", "Gene B Seq", "Fusion Part", "Flag|CIGAR", "Details");
+# 3. [important]
 
 from __future__ import division
 import os
@@ -18,7 +18,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 from Project.Lib.BASE import get_file_path
 from Project.Lib.BASE import read_bed
 from Project.Lib.BASE import parse_cigar_len
-
 
 # CONFIG AREA #
 len_primer = 35
@@ -225,8 +224,8 @@ if __name__ == '__main__':
 									if fg_seq[fg_a_sn] not in fg_dedup[key_name]:
 										fg_dedup[key_name].append(fg_seq[fg_a_sn])
 										fg_dedup[key_name][0] += 1
-									print "got fusion gene: %s" % ("  ".join([fg_a, fusion_seq_a, fusion_part_a, str(fg_a_flag) + " | " + fg_a_cigar,
-																			  fg_b, fusion_seq_b, fusion_part_b, str(fg_b_flag) + " | " + fg_b_cigar]))
+									print "got fusion gene: %s" % ("  ".join([fg_a, fusion_part_a, str(fg_a_flag) + " | " + fg_a_cigar,
+																			  fg_b, fusion_part_b, str(fg_b_flag) + " | " + fg_b_cigar]))
 
 		print "output fusion-gene log..."
 		output_filename = "%s-fusion-gene.log" % re.match('(.+)\.sam', os.path.basename(each_p_sam)).group(1)

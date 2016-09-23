@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# PROGRAM  : BASE_v1.00a
-# PURPOSE  :
-# AUTHOR   : codeunsolved@gmail.com
-# CREATED  : January 22 2016
+# PROGRAM : BASE
+# AUTHOR  : codeunsolved@gmail.com
+# CREATED : January 22 2016
+# VERSION : v0.0.1a
 
 import gzip
 import logging
@@ -19,8 +19,6 @@ def read_bed(path_b):
 			pos_s = int(re.match('[^\t]+\t([^\t]+\t)', line_b).group(1))
 			pos_e = int(re.match('(?:[^\t]+\t){2}([^\t]+\t)', line_b).group(1))
 			gene_name = re.match('(?:[^\t]+\t){3}([^\t\n\r]+)', line_b).group(1)
-			if re.search('[:\-_]', gene_name):
-				gene_name = ' '
 			f_details["%s-%s-%s-%s" % (chr_n, gene_name, pos_s, pos_e)] = [chr_n, gene_name, pos_s, pos_e]
 	return f_details
 
@@ -80,7 +78,7 @@ def decompress_gzip(dir_main, suffix='faa', r_num=2):
 
 
 def setup_logger(log_name, path_log, on_stream=False, level=logging.DEBUG,
-				 format_base='%(asctime)s | %(filename)s - line:%(lineno)-4d| %(levelname)s | %(message)s',
+				 format_base='%(asctime)s | %(filename)s - line:%(lineno)-4d | %(levelname)s | %(message)s',
 				 format_date='%d-%b-%Y %H:%M:%S'):
 	if not os.path.exists(os.path.dirname(path_log)):
 		os.makedirs(os.path.dirname(path_log))

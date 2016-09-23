@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# PROGRAM  : transPrimerSheet_ver0.01a
-# PURPOSE  :
-# AUTHOR   : codeunsolved@gmail.com
-# CREATED  : July 20 2016
+# PROGRAM : transPrimerSheet
+# AUTHOR  : codeunsolved@gmail.com
+# CREATED : July 20 2016
+# VERSION : v0.0.1a
 
 import os
 import re

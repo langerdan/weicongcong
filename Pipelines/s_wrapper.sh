@@ -1,3 +1,10 @@
+#!/bin/zsh
+# -*- coding: utf-8 -*-
+# PROGRAM : s_wrapper
+# AUTHOR  : codeunsolved@gmail.com
+# CREATED : September 21 2016
+# VERSION : v0.0.1a
+
 echo "========================================================"
 echo "\033[1;32m$(date)\033[0m"
 echo "========================================================"

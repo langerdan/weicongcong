@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# PROGRAM  : countReads_v0.01a
-# PURPOSE  :
-# AUTHOR   : codeunsolved@gmail.com
-# CREATED  : July 27 2016
-
+# PROGRAM : countReads
+# AUTHOR  : codeunsolved@gmail.com
+# CREATED : July 27 2016
+# VERSION : v0.0.1
+# UPDATE  : [v0.0.1] September 6 2016
+# 1. revise BRCA pos_s and pos_e by adding len_primer; 2. revise table name; 3. add mismatch log
 
 from __future__ import division
 import os
@@ -18,7 +19,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from Project.Lib.BASE import get_file_path
 from Project.Lib.BASE import read_bed
 from Project.Lib.BASE import parse_cigar_len
-
 
 # CONFIG AREA #
 len_primer = 35
@@ -209,5 +209,3 @@ if __name__ == '__main__':
 	#save_tab(amplicon_stat, sam_basename_list, 'reads_statistics')
 	save_stat(amplicon_stat, sam_basename_list)
 	print "========================================================\nOK!"
-
-

@@ -1,4 +1,10 @@
 #!/bin/zsh
+#!/bin/zsh
+# -*- coding: utf-8 -*-
+# PROGRAM : cp_reads_counts_report
+# AUTHOR  : codeunsolved@gmail.com
+# CREATED : September 6 2016
+# VERSION : v0.0.1a
 
 dir_output=$1
 dir_basename=$(basename $dir_output)

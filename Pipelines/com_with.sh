@@ -1,4 +1,11 @@
 #!/bin/zsh
+# -*- coding: utf-8 -*-
+# PROGRAM : com_with
+# AUTHOR  : codeunsolved@gmail.com
+# CREATED : Augest 12 2016
+# VERSION : v0.0.1
+# UPDATE  : [v0.0.1] September 23 2016
+# 1. add pipe option; 2. add output dir option 3. change {> => %}; 4. add prompt color
 
 com_line=$1
 with_obj=$2
@@ -67,7 +74,7 @@ if [[ $# -eq 2 || $# -eq 3 || $# -eq 4 ]]; then
 					eval $Command
 				fi
 			else
-				echo "\033[0;31m**ERROR** incorrect mod flag! got \"$operations\", accept +, - or #!\033[0m"
+				echo "\033[0;31m**ERROR** incorrect mod flag! got \"$operations\", accept +, -, = or #!\033[0m"
 			fi
 		fi
 	done
