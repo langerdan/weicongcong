@@ -6,7 +6,6 @@ if [[ $# -lt 3 ]]; then
 	reg='ba[im]|vcf|txt'
 else
 	reg=$3
-	echo $reg
 fi
 
 for dir_name in `ls $dir_data`
