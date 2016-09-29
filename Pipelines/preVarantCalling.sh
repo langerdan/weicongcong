@@ -15,10 +15,12 @@ STARTTIME=`python -c 'import time; print time.time()'`
 dir_ngs_manaul=`echo ~/NGS/NGS-Manual`
 log=${dir_data}/preVarantCalling.log
 
-echo -n "" >$log
-echo "========================================================"
+if [[ $option =~ 'new' ]]; then
+	echo -n "" >$log
+fi
+echo "========================================================" | tee -a $log
 echo $(date) | tee -a $log
-echo "========================================================"
+echo "========================================================" | tee -a $log
 
 for file in `ls $dir_data`
 do
@@ -28,7 +30,7 @@ do
 
 		r1=${dir_data}/$file
 		r2=${dir_data}/${basename}_R2$restname
-		echo "\033[1;36m=>r1's path:$r1\n=>r2's path:$r2\033[0m"
+		echo "\033[1;36m=>R1's path:$r1\n=>R2's path:$r2\033[0m"
 		r1_filename=$(basename $r1)
 		r2_filename=$(basename $r2)
 
@@ -88,7 +90,20 @@ if [[ $option =~ 'depth' ]]; then
 	echo "========================================================"
 fi
 
-if [[ $option =~ 'brca' ]]; then
+if [[ $option =~ 'toSAM' ]]; then
+	echo "\033[1;36m<< BAM to SAM >>\033[0m"
+	TOSAMTIME=`python -c 'import time; print time.time()'`
+	if [[ -n `echo $dir_data/*.sort.bam` ]]; then
+		com-with "samtools view -h" "ls ${dir_data}/*.sort.bam" %@${dir_data}@#sort.bam#sam
+	else
+		com-with "samtools view -h" "ls ${dir_data}/*.bam" %@${dir_data}@#bam#sam
+	fi
+	echo "========================================================"
+	echo "BAM to SAM time: $(bc -l <<< "scale=2; `python -c 'import time; print time.time()'`-$TOSAMTIME")s" | tee -a $log
+	echo "========================================================"
+fi
+
+if [[ $option =~ 'reads' ]]; then
 	echo "\033[1;36m<< reads count stat >>\033[0m"
 	RDCSTIME=`python -c 'import time; print time.time()'`
 	python ${dir_ngs_manaul}/Project/countReads.py $dir_data $bed
@@ -96,11 +111,13 @@ if [[ $option =~ 'brca' ]]; then
 	echo "========================================================"
 	echo "reads count stat time: $(bc -l <<< "scale=2; `python -c 'import time; print time.time()'`-$RDCSTIME")s" | tee -a $log
 	echo "========================================================"
+fi
 
-elif [[ $option =~ 'onco' ]]; then
+if [[ $option =~ 'fusiongene' ]]; then
 	echo "\033[1;36m<< mark fusion gene >>\033[0m"
 	MFGTIME=`python -c 'import time; print time.time()'`
 	python ${dir_ngs_manaul}/Project/FusionGene/markFusionGene.py $dir_data $bed $f_g_list
+	${dir_ngs_manaul}/Pipelines/cp_fusion_gene_log.sh $dir_data
 	echo "========================================================"
 	echo "mark fusion gene time: $(bc -l <<< "scale=2; `python -c 'import time; print time.time()'`-$MFGTIME")s" | tee -a $log
 	echo "========================================================"

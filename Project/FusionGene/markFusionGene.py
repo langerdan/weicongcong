@@ -106,7 +106,7 @@ def output_fg(data, dedup_stat, output_name):
 	data_sorted = sorted(data, key=lambda d: (d[0], d[1]))
 	with open(os.path.join(dir_sam, output_name), 'wb') as w_obj:
 		for each_row in data_sorted:
-			w_obj.write("%s" % "\t".join([str(x) for x in each_row]))
+			w_obj.write("%s\n" % "\t".join([str(x) for x in each_row]))
 		w_obj.write("===\tdeDup stat:\t===\n")
 		for each_key in dedup_stat:
 			w_obj.write("%s\t%d\n" % (each_key, dedup_stat[each_key][0]))
@@ -145,7 +145,7 @@ if __name__ == '__main__':
 			fg_a_hit = {}
 			fg_b_hit = {}
 			fg_seq = {}
-			fg_output = ["Gene A", "Gene A Seq", "Fusion Part", "Flag|CIGAR", "Gene B", "Gene B Seq", "Fusion Part", "Flag|CIGAR", "Details"]
+			fg_output = [["Gene A", "Gene A Seq", "Fusion Part", "Flag|CIGAR", "Gene B", "Gene B Seq", "Fusion Part", "Flag|CIGAR", "Details"]]
 			fg_dedup = {}
 			for line_i, line_sam in enumerate(r_obj_sam):
 				if re.match('@', line_sam):
@@ -213,8 +213,8 @@ if __name__ == '__main__':
 									fusion_seq_a = get_fusion_seq(fg_a_cigar, fg_a_seq)
 									fusion_seq_b = get_fusion_seq(fg_b_cigar, fg_b_seq)
 
-									fg_output.append([fg_a, fusion_part_a, str(fg_a_flag) + " | " + fg_a_cigar,
-													  fg_b, fusion_part_b, str(fg_b_flag) + " | " + fg_b_cigar,
+									fg_output.append([fg_a, fusion_seq_a, fusion_part_a, str(fg_a_flag) + " | " + fg_a_cigar,
+													  fg_b, fusion_seq_b, fusion_part_b, str(fg_b_flag) + " | " + fg_b_cigar,
 													  "\t".join([re.sub('[\t\n]', ' ', str(x)) for x in fg_seq[fg_a_sn]])])
 
 									key_name = "%s-%s-%s-%s" % (gene_a_name, re.match('([^-]+)\-', fg_b).group(1),
@@ -224,13 +224,15 @@ if __name__ == '__main__':
 									if fg_seq[fg_a_sn] not in fg_dedup[key_name]:
 										fg_dedup[key_name].append(fg_seq[fg_a_sn])
 										fg_dedup[key_name][0] += 1
-									print "got fusion gene: %s" % ("  ".join([fg_a, fusion_part_a, str(fg_a_flag) + " | " + fg_a_cigar,
-																			  fg_b, fusion_part_b, str(fg_b_flag) + " | " + fg_b_cigar]))
+									print ("  ".join([fg_a, fusion_part_a, str(fg_a_flag) + " | " + fg_a_cigar,
+											fg_b, fusion_part_b, str(fg_b_flag) + " | " + fg_b_cigar]))
 
 		print "output fusion-gene log..."
 		output_filename = "%s-fusion-gene.log" % re.match('(.+)\.sam', os.path.basename(each_p_sam)).group(1)
-		if fg_output:
+		if len(fg_output) > 1:
 			output_fg(fg_output, fg_dedup, output_filename)
 		else:
 			print "No fusion gene marked!"
-		print "========================================================\nOK!"
+		if path_sam_list.index(each_p_sam) + 1 < len(path_sam_list):
+			print "--------------------------------------------------------"
+	print "========================================================\nOK!"

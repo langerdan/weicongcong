@@ -21,6 +21,8 @@ from Project.Lib.BASE import read_bed
 from Project.Lib.BASE import parse_cigar_len
 
 # CONFIG AREA #
+dir_sam = sys.argv[1]
+path_bed = sys.argv[2]
 len_primer = 35
 
 
@@ -142,8 +144,6 @@ def output_mismatch(data, log_name):
 
 
 if __name__ == '__main__':
-	dir_sam = sys.argv[1]
-	path_bed = sys.argv[2]
 	print "========================================================"
 	print datetime.datetime.now().strftime('%Y年%m月%d日 %H:%M:%S')
 	print "========================================================"
