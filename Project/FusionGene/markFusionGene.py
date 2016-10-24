@@ -105,9 +105,10 @@ def get_fusion_seq(operations, seq):
 def output_fg(data, dedup_stat, output_name):
     data_sorted = sorted(data, key=lambda d: (d[0], d[1]))
     with open(os.path.join(dir_sam, output_name), 'wb') as w_obj:
+        w_obj.write("%s\n" % "\t".join(["Gene A", "Gene A Seq", "Fusion Part", "Flag|CIGAR", "Gene B", "Gene B Seq", "Fusion Part", "Flag|CIGAR", "Details"]))
         for row in data_sorted:
             w_obj.write("%s\n" % "\t".join([str(x) for x in row]))
-        w_obj.write("===\tdeDup stat:\t===\n")
+        w_obj.write("===deDup stat===\n")
         for key_n in dedup_stat:
             w_obj.write("%s\t%d\n" % (key_n, dedup_stat[key_n][0]))
             print "deDup stat: %s - %d" % (key_n, dedup_stat[key_n][0])
@@ -144,7 +145,7 @@ if __name__ == '__main__':
             fg_a_hit = {}
             fg_b_hit = {}
             fg_seq = {}
-            fg_output = [["Gene A", "Gene A Seq", "Fusion Part", "Flag|CIGAR", "Gene B", "Gene B Seq", "Fusion Part", "Flag|CIGAR", "Details"]]
+            fg_output = []
             fg_dedup = {}
             for line_i, line_sam in enumerate(sam):
                 if re.match('@', line_sam):
@@ -158,8 +159,8 @@ if __name__ == '__main__':
                 len_match = parse_cigar_len(cigar, 0)
                 pos_end = pos_start + len_match - 1
 
-                if qname in fg_seq and len(seq) > fg_seq[qname][0]:
-                    fg_seq[0] = seq
+                if qname in fg_seq and len(seq) > len(fg_seq[qname][0]):
+                    fg_seq[qname][0] = seq
 
                 for fusion_gene_b in fg_pair["fg_b"]:
                     if chr_name == fg_pair["fg_b"][fusion_gene_b]["chr"]:
@@ -232,6 +233,8 @@ if __name__ == '__main__':
             output_fg(fg_output, fg_dedup, output_filename)
         else:
             print "No fusion gene marked!"
+            with open(os.path.join(dir_sam, output_filename), 'wb') as w_obj:
+                w_obj.write("\n")
         if path_sam_list.index(p_sam) + 1 < len(path_sam_list):
             print "--------------------------------------------------------"
     print "========================================================\nOK!"

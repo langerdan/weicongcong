@@ -35,11 +35,11 @@ bwa mem -t 3 -M $ref_genome $r1 $r2 >${r_path}.sam
 printf "\033[1;32mOK!\033[0m\n"
 
 printf "\033[1;36m[STEP 2/3]trans SAM to BAM and sort BAM...\033[0m"
-samtools view -bhS ${r_path}.sam | samtools sort - >${r_path}.sort.bam
+samtools view -bhS ${r_path}.sam | samtools sort - >${r_path}.bam
 printf "\033[1;32mOK!\033[0m\n"
 
 printf "\033[1;36m[STEP 3/3]index BAM...\033[0m"
-samtools index ${r_path}.sort.bam >${r_path}.sort.bam.bai
+samtools index ${r_path}.bam >${r_path}.bam.bai
 printf "\033[1;32mOK!\033[0m\n"
 
 echo "========================================================"
