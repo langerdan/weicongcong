@@ -16,8 +16,9 @@ import datetime
 import xlwt
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from Project.Lib.BASE import get_file_path
 from Project.Lib.BASE import read_bed
+from Project.Lib.BASE import print_colors
+from Project.Lib.BASE import get_file_path
 from Project.Lib.BASE import parse_cigar_len
 
 # CONFIG AREA #
@@ -102,8 +103,8 @@ def save_stat(y_data, x_axis):
             sum_col += y_data[x_no][key]
             sum_row_list[amplicon_details_sorted.index((key, value))] += y_data[x_no][key]
         sum_col_list.append(sum_col)
-        print "sample: %s sum is %d" % (x, sum_col)
-    print "%d amplicons sum are: %s" % (len(amplicon_details_sorted), sum_row_list)
+        #print "sample: %s sum is %d" % (x, sum_col)
+    #print "%d amplicons sum are: %s" % (len(amplicon_details_sorted), sum_row_list)
 
     # write sheet2 - nli-sample-sum
     for key, value in amplicon_details_sorted:
@@ -147,23 +148,23 @@ if __name__ == '__main__':
     print "========================================================"
     print datetime.datetime.now().strftime('%Y年%m月%d日 %H:%M:%S')
     print "========================================================"
-    print "=>path of *.bed: %s\n=>dir of *.sam: %s" % (path_bed, dir_sam)
+    print print_colors("=> path of *.bed: %s\n=>dir of *.sam: %s" % (path_bed, dir_sam), 'yellow')
 
-    print "=>get amplicon details...",
+    print print_colors("• get amplicon details..."),
     amplicon_details = read_bed(path_bed)
-    print "OK!"
+    print print_colors("OK!", 'green')
     # print amplicon_details
 
-    print "=>get all paths of *.sam file..."
-    path_sam_list = get_file_path(dir_sam, "sam", 'list', 1)
+    print print_colors("• get all paths of *.sam file...")
+    path_sam_list = get_file_path(dir_sam, "sam", 'list', 1, False)
     dir_basename = os.path.basename(dir_sam)
-    print "OK! total %d." % len(path_sam_list)
+    print print_colors("OK! total %d." % len(path_sam_list), 'green')
     print "========================================================"
 
     amplicon_stat = []
     sam_basename_list = []
     for p_sam in path_sam_list:
-        print "[No.%d/%d]processing with %s..." % (path_sam_list.index(p_sam) + 1, len(path_sam_list), p_sam)
+        print print_colors("<No.%d/%d %s>" % (path_sam_list.index(p_sam) + 1, len(path_sam_list), p_sam))
         sam_basename = re.match('(.+)\.sam', os.path.basename(p_sam)).group(1)
         if re.search('_S\d+', sam_basename):
             sam_basename = re.match('(.+)_S\d+', sam_basename).group(1)
@@ -172,9 +173,7 @@ if __name__ == '__main__':
         with open(p_sam, 'rb') as sam:
             counts = {}
             mismatch = {}
-            line_i = 0
-            for line_sam in sam:
-                line_i += 1
+            for i, line_sam in enumerate(sam):
                 if re.match('@', line_sam):
                     continue
                 chr_name = re.match('(?:[^\t]+\t){2}([^\t]+)', line_sam).group(1)
@@ -187,8 +186,7 @@ if __name__ == '__main__':
                     if key not in counts:
                         counts[key] = 0
                     if chr_name == amplicon_details[key][0]:
-                        if pos_start >= amplicon_details[key][2] - n and \
-                        pos_end <= amplicon_details[key][3] + n:
+                        if pos_start >= amplicon_details[key][2] - n and pos_end <= amplicon_details[key][3] + n:
                             counts[key] += 1
                             match_trigger = 1
                             break
@@ -199,13 +197,12 @@ if __name__ == '__main__':
                         mismatch[log_mis] = 1
                     else:
                         mismatch[log_mis] += 1
-            mismatch["@TotalReads"] = line_i
+            mismatch["@TotalReads"] = i
             output_mismatch(mismatch, "%s-mismatch.log" % re.match('(.+)\.sam', os.path.basename(p_sam)).group(1))
-
         amplicon_stat.append(counts)
 
     amplicon_details_sorted = sorted(amplicon_details.iteritems(), key=lambda d: (d[1][0], d[1][1]))
-    print "output table..."
-    #save_tab(amplicon_stat, sam_basename_list, 'reads_statistics')
+    print print_colors("• output table ..."),
+    save_tab(amplicon_stat, sam_basename_list, 'reads_statistics')
     save_stat(amplicon_stat, sam_basename_list)
-    print "========================================================\nOK!"
+    print print_colors("OK!", 'green')

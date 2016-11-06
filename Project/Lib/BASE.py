@@ -10,6 +10,7 @@ import re
 import gzip
 import logging
 
+
 def read_bed(path_b):
     f_details = {}
     with open(path_b, 'rb') as bed:
@@ -36,7 +37,7 @@ def parse_cigar_len(operations, len_valid):
     return len_valid
 
 
-def get_file_path(dir_main, suffix='faa', output_type='list', r_num=2):
+def get_file_path(dir_main, suffix='faa', output_type='list', r_num=2, debug=True):
     def recurse_dir(dir_r, path_list, suffix_r, r_num_r):
         r_num_r -= 1
         content_list = os.listdir(dir_r)
@@ -44,8 +45,9 @@ def get_file_path(dir_main, suffix='faa', output_type='list', r_num=2):
             path_content = os.path.join(dir_r, content)
             if os.path.isdir(path_content) and r_num_r:
                 recurse_dir(path_content, path_list, suffix, r_num_r)
-            elif re.search('\.' + suffix_r + '$', content):
-                print path_content
+            elif re.search('\.%s$' % suffix_r, content):
+                if debug:
+                    print path_content
                 path_list.append(path_content)
         return path_list
 
@@ -91,3 +93,16 @@ def setup_logger(log_name, path_log, on_stream=False, level=logging.DEBUG,
         stream_handler = logging.StreamHandler()
         stream_handler.setFormatter(logging.Formatter('[%(levelname)s] %(message)s'))
         l.addHandler(stream_handler)
+
+
+def print_colors(string, color='blue'):
+    colors = {
+        'red': '\033[1;31m',
+        'green': '\033[1;32m',
+        'yellow': '\033[1;33m',
+        'blue': '\033[1;36m',
+        'grey': '\033[1;30m',
+        'bold': '\033[1m',
+        'end': '\033[0m'
+    }
+    return colors[color] + string + colors['end']
