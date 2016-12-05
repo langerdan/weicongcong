@@ -14,7 +14,7 @@ do
 	if [[ -d $path_dir ]]; then
 		for file in `ls $path_dir`
 		do
-			if [[ $file =~ "\.(:?$reg)$" ]]; then
+			if [[ $file =~ "\.($reg)$" ]]; then
 				echo "\033[1;36mcopy data: $file to $dir_output\033[0m"
 				rsync --info=progress2 $path_dir/$file $dir_output/$file
 			else

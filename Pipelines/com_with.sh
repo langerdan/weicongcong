@@ -74,7 +74,7 @@ if [[ $# -eq 2 || $# -eq 3 || $# -eq 4 ]]; then
 					eval $Command
 				fi
 			else
-				echo "\033[1;31m**ERROR** incorrect mod flag! got \"$operations\", accept +, -, = or #!\033[0m"
+				echo "\033[1;31m**ERROR** incorrect mod flag! got \"$operations\", accept +, -, =, # or $!\033[0m"
 			fi
 		fi
 	done

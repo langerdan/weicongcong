@@ -53,7 +53,7 @@ def init_amplicon_data(sap_name):
 
 
 def get_reads(data):
-    n = 1
+    n = 0
     while True:
         pop_i = []
         for i, d in enumerate(data['depths']):
@@ -70,7 +70,7 @@ if __name__ == '__main__':
     print "========================================================"
     print datetime.datetime.now().strftime('%Y年%m月%d日 %H:%M:%S')
     print "========================================================"
-    print print_colors("=> path of *.bed: %s\n=>dir of *.depth: %s" % (path_bed, dir_depth), 'yellow')
+    print print_colors("=> path of *.bed: %s\n=> dir of *.depth: %s" % (path_bed, dir_depth), 'yellow')
 
     print print_colors("• get amplicon details..."),
     amplicon_details = read_bed(path_bed)

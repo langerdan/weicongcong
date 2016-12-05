@@ -47,7 +47,7 @@ do
 		if [[ $option =~ 'fastqc' ]]; then
 			echo "\033[1;36m<< FASTQC >>\033[0m"
 			FASTQCTIME=`python -c 'import time; print time.time()'`
-			fastqc $r1 $r2 -o $dir_data
+			fastqc $r1 $r2 -o $dir_data -q
 			echo "========================================================"
 			echo "FASTQC time: "$(bc -l <<< "scale=2; `python -c 'import time; print time.time()'`-$FASTQCTIME")s | tee -a $log
 			echo "========================================================"
